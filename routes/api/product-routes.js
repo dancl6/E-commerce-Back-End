@@ -8,30 +8,17 @@ router.get('/', (req, res) => {
   // find all products
   // be sure to include its associated Category and Tag data
   Product.findAll({
-    // attributes: [ 'id', 'product_name', 'price', 'stock', 'category_id'],
-  
-  
-
-    // include: [
-    //   {
-    //     model: Category,
-    //   },
-    //   {
-    //       model: Tag,
-    //   }
+    include: [
+      {
+        model: Category,
+      },
+      {
+          model: Tag,
+      }
        
-    // ]
+    ]
 
-    // include: [
-    //   Category,
-    //   {
-    //     model: Tag,
-    //     through: ProductTag,
-    //   },
-    // ],
 
-      
-    
   }).then(dbProductData => res.json(dbProductData))
   .catch(err => {
     console.log(err);
@@ -55,15 +42,7 @@ router.get('/:id', (req, res) => {
       {
           model: Tag,
       }
-       
-    // ]
-    
-    // include: [
-    //   Category,
-    //   {
-    //     model: Tag,
-    //     through: ProductTag,
-    //   },
+
     ],
   }).then(dbProductData => res.json(dbProductData))
   .catch(err => {
@@ -82,31 +61,27 @@ router.post('/', (req, res) => {
       tagIds: [1, 2, 3, 4]
     }
   */
-  // Product.create(req.body)
+
   Product.create({
     product_name: req.body.product_name,
     price: req.body.price,
     stock: req.body.stock,
-    // tag_id:req.body.tag_id,
-    // tag_id: req.body.tag_id,
+
     tagIds: req.body.tagIds,
+    // attributes: ["category_id"], 
     include: {
       model: 'product_tag',
-      attributes: ['tag_id']
+      attributes: ['tag_id'],
+      // include: {
+      //   model: Category,
+      // }
     }
-    // include: {
-    //   model: 'category',
-    //   attributes: ['id', 'category_name']
-    // }
-    // where: {
-    //   tagIds: req.body.tag_id
-    // }
+
 
   })
     .then((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
-      // console.log("req.body.stock is : ");
-      // console.log(req.body.stock);
+
       if (req.body.tagIds.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
           return {
